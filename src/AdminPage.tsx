@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Copy, CheckCircle, Link as LinkIcon, ArrowRight } from 'lucide-react';
+import { Copy, CheckCircle, Link as LinkIcon, ArrowRight, MessageSquare } from 'lucide-react';
 
 export const AdminPage: React.FC = () => {
   const [prefix, setPrefix] = useState('Mr. & Mrs.');
   const [guestName, setGuestName] = useState('');
   const [generatedLink, setGeneratedLink] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState(false);
 
   const prefixes = [
-    'Mr. & Mrs.',
     'Mr.',
     'Mrs.',
-    'Ms.',
-    'Dr.',
-    'Rev.',
-    'Hon.',
-    'Prof.'
+    'Miss',
+    'Mr. & Mrs.',
+    'Family',
+    'Dear'
   ];
 
   const handleGenerate = () => {
@@ -28,16 +27,42 @@ export const AdminPage: React.FC = () => {
     url.searchParams.set('name', guestName.trim());
     
     setGeneratedLink(url.toString());
-    setCopied(false);
+    setCopiedLink(false);
+    setCopiedMessage(false);
   };
 
-  const handleCopy = async () => {
+  const getFullMessage = () => {
+    return `Dear ${prefix} ${guestName.trim()} ❤️
+
+With joyful hearts, we warmly invite you to celebrate one of the most special days of our lives as we begin our journey together.
+
+Please view our wedding invitation and all the event details through the link below 🌐:
+
+${generatedLink}
+
+Your presence would truly mean the world to us, and we would be honored to celebrate this beautiful moment together.
+
+With love,
+❤️ Nuwan & Loshani`;
+  };
+
+  const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(generatedLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     } catch (err) {
       console.error('Failed to copy link: ', err);
+    }
+  };
+
+  const handleCopyMessage = async () => {
+    try {
+      await navigator.clipboard.writeText(getFullMessage());
+      setCopiedMessage(true);
+      setTimeout(() => setCopiedMessage(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy message: ', err);
     }
   };
 
@@ -83,7 +108,7 @@ export const AdminPage: React.FC = () => {
               <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-stone-500 mb-3 ml-2">Guest Name</label>
               <input
                 type="text"
-                placeholder="e.g. John Doe"
+                placeholder="e.g. Sanjaya"
                 className="w-full bg-white/80 px-6 py-4 rounded-full border border-stone-200/60 focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary-light/40 outline-none transition-all duration-300 font-serif text-lg shadow-inner placeholder:text-stone-300"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
@@ -110,35 +135,57 @@ export const AdminPage: React.FC = () => {
             >
               <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-brand-primary mb-3 ml-2">Your Unique Link</label>
               
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-4">
                 <div className="w-full bg-white/90 px-6 py-4 rounded-full border border-brand-primary/20 font-mono text-sm text-stone-600 truncate overflow-x-auto shadow-inner flex-grow">
                   {generatedLink}
                 </div>
                 
-                <button
-                  onClick={handleCopy}
-                  className={`flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sans tracking-[0.1em] font-bold text-xs uppercase transition-all duration-300 min-w-[140px] ${
-                    copied 
-                      ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
-                      : 'bg-white text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/10'
-                  }`}
-                >
-                  {copied ? (
-                    <>
-                      <CheckCircle className="w-4 h-4" /> Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" /> Copy
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                  <button
+                    onClick={handleCopyLink}
+                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full font-sans tracking-[0.1em] font-bold text-xs uppercase transition-all duration-300 ${
+                      copiedLink 
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
+                        : 'bg-white text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/10'
+                    }`}
+                  >
+                    {copiedLink ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" /> Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" /> Copy Link Only
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleCopyMessage}
+                    className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full font-sans tracking-[0.1em] font-bold text-xs uppercase transition-all duration-300 ${
+                      copiedMessage 
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
+                        : 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30 hover:bg-brand-primary-deep'
+                    }`}
+                  >
+                    {copiedMessage ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" /> Copied!
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare className="w-4 h-4" /> Copy Full Message
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               
-              <div className="mt-4 px-2">
-                <p className="text-xs text-stone-500 italic font-serif">
-                  Preview text: <span className="text-stone-700 font-medium">We cordially invite {prefix} {guestName}</span>
-                </p>
+              <div className="mt-6 px-2 p-4 bg-white/60 rounded-2xl border border-brand-primary/10">
+                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-stone-500 mb-2">Message Preview:</p>
+                <div className="text-sm text-stone-600 font-serif whitespace-pre-wrap leading-relaxed">
+                  {getFullMessage()}
+                </div>
               </div>
             </motion.div>
           )}
