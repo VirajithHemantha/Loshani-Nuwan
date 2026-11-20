@@ -22,9 +22,7 @@ export default function App() {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // TEMP for video recording: countdown shows 1 day (1 day 23h 59m 59s from page load).
-  // Restore the real date afterwards: new Date('2026-09-19T09:30:00')
-  const [weddingDate] = useState(() => new Date(Date.now() + (2 * 24 * 60 * 60 - 1) * 1000));
+  const weddingDate = new Date('2026-09-19T09:30:00');
   const startMusic = () => {
     if (audioRef.current && !isMusicPlaying) {
       audioRef.current.play().catch(err => console.log("Audio play blocked: ", err));
