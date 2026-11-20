@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ZoomIn } from 'lucide-react';
 
+// w / h = real pixel size of each photo, so every frame matches its image exactly
 const images = [
-  { id: 1, url: '/1.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=800&auto=format&fit=crop', title: 'The Beginning' },
-  { id: 2, url: '/3.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1522673607200-164d1f624698?q=80&w=800&auto=format&fit=crop', title: 'Our Journey' },
-  { id: 3, url: '/5.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=800&auto=format&fit=crop', title: 'A Thousand Words' },
-  { id: 4, url: '/6.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=800&auto=format&fit=crop', title: 'Endless Love' },
-  { id: 5, url: '/7.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1519225421980-715cb02151ff?q=80&w=800&auto=format&fit=crop', title: 'Forever Together' },
-  { id: 6, url: '/8.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1519225421980-715cb02151ff?q=80&w=800&auto=format&fit=crop', title: 'Unbreakable Bond' },
-  { id: 7, url: '/9.jpg', position: 'object-[50%_30%]', fallback: 'https://images.unsplash.com/photo-1519225421980-715cb02151ff?q=80&w=800&auto=format&fit=crop', title: 'Ever After' },
+  { id: 1, url: '/1.jpg', w: 605, h: 1058, title: 'The Beginning' },
+  { id: 2, url: '/3.jpg', w: 1066, h: 1600, title: 'Our Journey' },
+  { id: 3, url: '/10.jpg', w: 516, h: 1066, title: 'Sweet Moments' },
+  { id: 4, url: '/5.jpg', w: 1066, h: 1600, title: 'A Thousand Words' },
+  { id: 5, url: '/6.jpg', w: 1138, h: 1600, title: 'Endless Love' },
+  { id: 6, url: '/7.jpg', w: 1066, h: 1600, title: 'Forever Together' },
+  { id: 7, url: '/8.jpg', w: 1066, h: 1600, title: 'Unbreakable Bond' },
+  { id: 8, url: '/11.jpg', w: 1092, h: 1600, title: 'Hand in Hand' },
+  { id: 9, url: '/9.jpg', w: 1066, h: 1600, title: 'Ever After' },
 ];
+
+const FALLBACK = 'https://images.unsplash.com/photo-1519225421980-715cb02151ff?q=80&w=800&auto=format&fit=crop';
 
 export const Gallery: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -22,14 +27,14 @@ export const Gallery: React.FC = () => {
     <div className="w-full relative py-12 md:py-20 overflow-hidden">
       <style>
         {`
-          @keyframes slide-left {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+          @keyframes slide-right {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
           }
           .animate-marquee {
             display: flex;
             width: max-content;
-            animation: slide-left 20s linear infinite;
+            animation: slide-right 15s linear infinite;
           }
           .animate-marquee:hover {
             animation-play-state: paused;
@@ -70,14 +75,15 @@ export const Gallery: React.FC = () => {
           {marqueeImages.map((image, index) => (
             <div
               key={`${image.id}-${index}`}
-              className="relative flex-none w-[85vw] sm:w-[55vw] lg:w-[40vw] aspect-[4/3] sm:aspect-[3/2] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.1)] group cursor-pointer border-[8px] sm:border-[10px] border-white/90 bg-brand-champagne transform transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_40px_60px_rgba(197,160,89,0.2)]"
+              style={{ aspectRatio: `${image.w} / ${image.h}` }}
+              className="relative flex-none h-[55vh] sm:h-[60vh] max-h-[520px] max-w-[85vw] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.1)] group cursor-pointer border-[8px] sm:border-[10px] border-white/90 bg-brand-champagne transform transition-all duration-700 hover:-translate-y-4 hover:shadow-[0_40px_60px_rgba(197,160,89,0.2)]"
               onClick={() => setSelectedImage(image.url)}
             >
               <img
                 src={image.url}
-                onError={(e) => { e.currentTarget.src = image.fallback; }}
+                onError={(e) => { e.currentTarget.src = FALLBACK; }}
                 alt={image.title}
-                className={`w-full h-full object-contain transition-transform duration-[2s] ease-out group-hover:scale-110 ${image.position || 'object-center'}`}
+                className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
               />
               {/* Elegant deep inner shadow for frame depth */}
               <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.15)] pointer-events-none" />
@@ -86,7 +92,7 @@ export const Gallery: React.FC = () => {
               <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex items-end justify-center p-8 sm:p-10 pointer-events-none">
                 <div className="text-white text-center transform translate-y-6 group-hover:translate-y-0 transition-transform duration-700 ease-out">
                   <ZoomIn className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-4 text-white/90 drop-shadow-md opacity-80" />
-                  <p className="font-serif text-3xl sm:text-4xl tracking-wide drop-shadow-lg font-light">{image.title}</p>
+                  <p className="font-serif text-2xl sm:text-3xl tracking-wide drop-shadow-lg font-light">{image.title}</p>
                   <div className="w-16 h-[2px] bg-brand-primary/80 mx-auto mt-5 drop-shadow-md" />
                 </div>
               </div>
@@ -121,10 +127,7 @@ export const Gallery: React.FC = () => {
               exit={{ scale: 0.8, opacity: 0, y: 40 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               src={selectedImage}
-              onError={(e) => {
-                const fallbackImage = marqueeImages.find(img => img.url === selectedImage)?.fallback;
-                if (fallbackImage) e.currentTarget.src = fallbackImage;
-              }}
+              onError={(e) => { e.currentTarget.src = FALLBACK; }}
               alt="Gallery Preview"
               className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.6)] border-[6px] border-white/10"
               onClick={(e) => e.stopPropagation()}

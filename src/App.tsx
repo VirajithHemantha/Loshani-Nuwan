@@ -16,11 +16,15 @@ import { Footer } from './components/Footer';
 
 import { HeroContent } from './components/HeroContent';
 import { CornerFlowers } from './components/CornerFlowers';
+import { IntroVideo } from './components/IntroVideo';
 
 export default function App() {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-        const weddingDate = new Date('2026-09-19T09:30:00');
+  // TEMP for video recording: countdown shows 1 day (1 day 23h 59m 59s from page load).
+  // Restore the real date afterwards: new Date('2026-09-19T09:30:00')
+  const [weddingDate] = useState(() => new Date(Date.now() + (2 * 24 * 60 * 60 - 1) * 1000));
   const startMusic = () => {
     if (audioRef.current && !isMusicPlaying) {
       audioRef.current.play().catch(err => console.log("Audio play blocked: ", err));
@@ -47,11 +51,18 @@ export default function App() {
       <audio
         ref={audioRef}
         src="/Westlife_-_Beautifull_in_White_(mp3.pm) (1).mp3"
-        autoPlay
         loop
       />
 
+      {/* Intro: "View Invitation" button -> intro video -> website */}
+      <AnimatePresence>
+        {showIntro && (
+          <IntroVideo key="intro" onStart={startMusic} onComplete={() => setShowIntro(false)} />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
+        {!showIntro && (
           <motion.main
             key="main"
             initial={{ opacity: 0 }}
@@ -103,6 +114,11 @@ export default function App() {
             <section id="couple" className="py-16 sm:py-32 bg-gradient-to-b from-brand-ivory to-brand-champagne relative overflow-hidden">
               <CornerFlowers position="top-right" opacity={0.6} scale={1.5} />
               <CornerFlowers position="bottom-left" opacity={0.6} scale={1.5} />
+              {/* Couple photo watermark */}
+              <div
+                className="absolute inset-0 bg-[url('/5.jpg')] bg-cover bg-[position:50%_30%] opacity-[0.3] pointer-events-none"
+                style={{ maskImage: 'radial-gradient(ellipse at center, black 50%, transparent 90%)', WebkitMaskImage: 'radial-gradient(ellipse at center, black 50%, transparent 90%)' }}
+              />
               <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none" />
               <CoupleDetails />
             </section>
@@ -133,6 +149,7 @@ export default function App() {
 
             <Footer />
           </motion.main>
+        )}
       </AnimatePresence>
     </div>
   );
